@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Swapi</string>
     <string name="base_url">https://swapi.co/api/</string>
+    <string name="label_search_resource">Search Resource</string>
+    <string name="label_accessibility_search_resource">Search Resource</string>
+    <string name="message_enter_resource_name">Please enter resource name</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="some_error">Getting unknown error</string>
+    <string name="message_no_resource_detail_available">No resource detail available</string>
 </resources>

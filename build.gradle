@@ -32,6 +32,7 @@ buildscript {
         retrofitGsonVersion = '2.3.0'
         retrofitAdapterVersion = '2.4.0'
         okHttpLoggingInterceptorVersion = '3.6.0'
+        lifecycleVersion = '2.0.0'
     }
 }
 

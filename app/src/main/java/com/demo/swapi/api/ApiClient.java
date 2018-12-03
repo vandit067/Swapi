@@ -18,8 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class ApiClient {
     private static ApiClient ourInstance = null;
-    private static final int CONNECTION_TIMEOUT = 10;
-    private static final int READ_TIMEOUT = 10;
+    private static final int CONNECTION_TIMEOUT = 30;
+    private static final int READ_TIMEOUT = 30;
     private Retrofit mRetrofit;
 
     /**

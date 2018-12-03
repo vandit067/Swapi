@@ -8,5 +8,5 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
     @GET("people")
-    Single<ResourceDetailModel> getRsourceDetail(@Query("search") String resourceName);
+    Single<ResourceDetailModel> getResourceDetail(@Query("search") String resourceName);
 }
