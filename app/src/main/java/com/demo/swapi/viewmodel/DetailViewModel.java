@@ -32,9 +32,7 @@ public class DetailViewModel extends BaseViewModel {
         addDisposable(getApiServices().getApiInterface().getResourceDetail(resourceName)
                 .subscribeOn(getAppRxSchedulers().io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(resourceDetailModel -> {
-                    mResourceDetailModelObserver.postValue(resourceDetailModel);
-                }, e -> {
+                .subscribe(resourceDetailModel -> mResourceDetailModelObserver.postValue(resourceDetailModel), e -> {
                     Log.e("Error", e.getMessage());
                 }));
     }

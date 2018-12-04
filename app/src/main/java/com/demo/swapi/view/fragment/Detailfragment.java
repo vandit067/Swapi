@@ -32,8 +32,8 @@ public class Detailfragment extends BaseFragment {
 
     @BindView(R.id.fragment_detail_progressbar)
     ProgressBar mProgressBar;
-    @BindView(R.id.fragment_detail_tv_dob)
-    TextView mTvTvResourceDob;
+    @BindView(R.id.fragment_detail_tv_birth_year)
+    TextView mTvResourceBirthYear;
     @BindView(R.id.fragment_detail_tv_eye_color)
     TextView mTvResourceEyeColor;
     @BindView(R.id.fragment_detail_tv_hair_color)
@@ -86,23 +86,49 @@ public class Detailfragment extends BaseFragment {
         return view;
     }
 
+    /**
+     * Setup views and entry point to perform operations
+     * @param view current view.
+     */
     @Override
     protected void setUp(@NonNull View view) {
+        this.retrieveResourceDetail();
+    }
+
+    /**
+     * Initiate resource detail api call and get response.
+     */
+    private void retrieveResourceDetail(){
         showProgress(this.mProgressBar, this.mRlContentView);
         this.mDetailViewModel.retrieveResourceDetails(this.mResourceName);
         this.mDetailViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
             showContent(this.mProgressBar, this.mRlContentView);
             if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
-                showError(R.string.message_no_resource_detail_available);
+                showMessage(R.string.message_no_data_available);
                 return;
             }
             setResourceData(resourceDetailModel.getResults());
         });
     }
 
+    /**
+     * Set resource details in view from @{@link Result}
+     * @param resultList response return from Api call.
+     */
     private void setResourceData(@NonNull List<Result> resultList){
         Result result = resultList.get(0);
+        if(result == null){
+            showMessage(getString(R.string.message_no_data_available));
+            return;
+        }
         this.mTvResourceName.setText(result.getName());
+        this.mTvResourceEyeColor.setText(result.getEyeColor());
+        this.mTvResourceGender.setText(result.getGender());
+        this.mTvResourceHairColor.setText(result.getHairColor());
+        this.mTvResourceSkinColor.setText(result.getSkinColor());
+        this.mTvResourceHeight.setText(result.getHeight());
+        this.mTvResourceMass.setText(result.getMass());
+        this.mTvResourceBirthYear.setText(result.getBirthYear());
     }
 
 }

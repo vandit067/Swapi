@@ -58,14 +58,14 @@ public abstract class BaseActivity extends AppCompatActivity implements IBaseVie
 
     @Override
     public void showContent(@NonNull View progressView, @NonNull View contentView) {
-        progressView.setVisibility(View.VISIBLE);
-        contentView.setVisibility(View.GONE);
+        progressView.setVisibility(View.GONE);
+        contentView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showProgress(@NonNull View progressView, @NonNull View contentView) {
-        progressView.setVisibility(View.GONE);
-        contentView.setVisibility(View.VISIBLE);
+        progressView.setVisibility(View.VISIBLE);
+        contentView.setVisibility(View.GONE);
     }
 
     @Override
@@ -83,8 +83,9 @@ public abstract class BaseActivity extends AppCompatActivity implements IBaseVie
         UiUtils.hideKeyBoard(view);
     }
 
-    public void replaceFragment(@NonNull Fragment fragment){
-        getSupportFragmentManager().beginTransaction().replace(R.id.activity_master_container, fragment, fragment.getClass().getSimpleName()).commit();
+    public void replaceFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
+        getSupportFragmentManager().beginTransaction().replace(R.id.activity_master_container, fragment,
+                fragment.getClass().getSimpleName()).addToBackStack(backFragmentName).commit();
     }
 
     public void setUnBinder(Unbinder unBinder) {

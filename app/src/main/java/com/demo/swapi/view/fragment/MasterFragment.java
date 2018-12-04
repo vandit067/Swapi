@@ -79,7 +79,7 @@ public class MasterFragment extends BaseFragment {
 
     private void performSearch(@NonNull String resourceName){
         hideKeyboard();
-        replaceFragment(Detailfragment.newInstance(resourceName));
+        replaceFragment(Detailfragment.newInstance(resourceName), getClass().getSimpleName());
     }
 
     @Override

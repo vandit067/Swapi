@@ -77,14 +77,14 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
 
     @Override
     public void showContent(@NonNull View progressView, @NonNull View contentView) {
-        progressView.setVisibility(View.VISIBLE);
-        contentView.setVisibility(View.GONE);
+        progressView.setVisibility(View.GONE);
+        contentView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showProgress(@NonNull View progressView, @NonNull View contentView) {
-        progressView.setVisibility(View.GONE);
-        contentView.setVisibility(View.VISIBLE);
+        progressView.setVisibility(View.VISIBLE);
+        contentView.setVisibility(View.GONE);
     }
 
     @Override
@@ -94,9 +94,9 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
         errorView.setVisibility(View.VISIBLE);
     }
 
-    public void replaceFragment(@NonNull Fragment fragment){
+    public void replaceFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
         if (this.mActivity != null) {
-            mActivity.replaceFragment(fragment);
+            mActivity.replaceFragment(fragment, backFragmentName);
         }
     }
 
