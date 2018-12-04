@@ -15,7 +15,7 @@ public class MasterActivity extends BaseActivity {
 
     @Override
     protected void setUp() {
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_master_container,
-                MasterFragment.newInstance()).commit();
+//        getSupportFragmentManager().beginTransaction().add(R.id.activity_master_container,
+//                MasterFragment.newInstance()).commit();
     }
 }

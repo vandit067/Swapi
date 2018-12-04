@@ -16,6 +16,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.Navigation;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -85,7 +86,11 @@ public class MasterFragment extends BaseFragment {
      */
     private void performSearch(@NonNull String resourceName){
         hideKeyboard();
-        replaceFragment(Detailfragment.newInstance(resourceName), getClass().getSimpleName());
+        Bundle bundle = new Bundle();
+        bundle.putString("key_resource_name", resourceName);
+        // Navigation component will navigate to detail screen. We don't need to worry about fragment commit, transaction, etc.
+        Navigation.findNavController(mIvSearchResource).navigate(R.id.action_to_detailfragment, bundle);
+//        replaceFragment(Detailfragment.newInstance(resourceName), getClass().getSimpleName());
     }
 
     @Override

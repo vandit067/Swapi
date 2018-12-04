@@ -84,8 +84,8 @@ public abstract class BaseActivity extends AppCompatActivity implements IBaseVie
     }
 
     public void replaceFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
-        getSupportFragmentManager().beginTransaction().replace(R.id.activity_master_container, fragment,
-                fragment.getClass().getSimpleName()).addToBackStack(backFragmentName).commit();
+//        getSupportFragmentManager().beginTransaction().replace(R.id.activity_master_container, fragment,
+//                fragment.getClass().getSimpleName()).addToBackStack(backFragmentName).commit();
     }
 
     public void setUnBinder(Unbinder unBinder) {

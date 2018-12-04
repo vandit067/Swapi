@@ -26,7 +26,7 @@ import butterknife.ButterKnife;
  */
 public class Detailfragment extends BaseFragment {
 
-    private static final String KEY_RESOURCE_NAME = "key_resource_name";
+//    private static final String KEY_RESOURCE_NAME = "key_resource_name";
     private DetailViewModel mDetailViewModel;
     private String mResourceName;
 
@@ -51,18 +51,18 @@ public class Detailfragment extends BaseFragment {
     @BindView(R.id.fragment_detail_rl_content)
     RelativeLayout mRlContentView;
 
-    /**
-     * Constructor to create instance of {@link Detailfragment}
-     * @param resourceName search resource name from {@link MasterFragment}
-     * @return instance of {@link Detailfragment}
-     */
-    static Detailfragment newInstance(@NonNull String resourceName) {
-        Bundle bundle = new Bundle();
-        bundle.putString(KEY_RESOURCE_NAME, resourceName);
-        Detailfragment detailfragment = new Detailfragment();
-        detailfragment.setArguments(bundle);
-        return detailfragment;
-    }
+//    /**
+//     * Constructor to create instance of {@link Detailfragment}
+//     * @param resourceName search resource name from {@link MasterFragment}
+//     * @return instance of {@link Detailfragment}
+//     */
+//    static Detailfragment newInstance(@NonNull String resourceName) {
+//        Bundle bundle = new Bundle();
+//        bundle.putString(KEY_RESOURCE_NAME, resourceName);
+//        Detailfragment detailfragment = new Detailfragment();
+//        detailfragment.setArguments(bundle);
+//        return detailfragment;
+//    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class Detailfragment extends BaseFragment {
             popFragment();
             return;
         }
-        this.mResourceName = getArguments().getString(KEY_RESOURCE_NAME,"");
+        this.mResourceName = getArguments().getString("key_resource_name","");
         // We are not creating instance of ViewModel class here.
         this.mDetailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
     }

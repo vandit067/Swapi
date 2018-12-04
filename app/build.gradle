@@ -56,4 +56,8 @@ dependencies {
     //Lifecycle (ViewModel and LiveData included)
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
+
+    // Navigation component
+    implementation "android.arch.navigation:navigation-fragment:$navigationLibVersion"
+    implementation "android.arch.navigation:navigation-ui:$navigationLibVersion"
 }
