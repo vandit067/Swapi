@@ -130,4 +130,11 @@ public class Detailfragment extends BaseFragment {
         this.mTvResourceBirthYear.setText(result.getBirthYear());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(this.mDetailViewModel != null){
+            this.mDetailViewModel = null;
+        }
+    }
 }
