@@ -100,6 +100,16 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
         }
     }
 
+    /**
+     * Pop fragment from fragment stack
+     */
+    public void popFragment(){
+        if(getFragmentManager() == null){
+            return;
+        }
+        getFragmentManager().popBackStack();
+    }
+
     protected abstract void setUp(@NonNull View view);
 
     public void setUnBinder(Unbinder unBinder) {

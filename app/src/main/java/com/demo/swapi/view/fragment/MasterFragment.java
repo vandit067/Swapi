@@ -1,6 +1,7 @@
 package com.demo.swapi.view.fragment;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,8 +61,10 @@ public class MasterFragment extends BaseFragment {
     }
 
     @OnTextChanged(value = R.id.fragment_master_tiet_resource, callback = OnTextChanged.Callback.TEXT_CHANGED)
-    void onTextChanged(){
-
+    void onTextChanged(Editable editable){
+        if(editable.length() > 0){
+            this.mTilResource.setError("");
+        }
     }
 
     @OnEditorAction(R.id.fragment_master_tiet_resource)
@@ -77,6 +80,10 @@ public class MasterFragment extends BaseFragment {
         return false;
     }
 
+    /**
+     * Pass search resource name to  {@link Detailfragment}
+     * @param resourceName name of resource
+     */
     private void performSearch(@NonNull String resourceName){
         hideKeyboard();
         replaceFragment(Detailfragment.newInstance(resourceName), getClass().getSimpleName());

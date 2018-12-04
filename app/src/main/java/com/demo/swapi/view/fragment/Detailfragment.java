@@ -68,9 +68,7 @@ public class Detailfragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getArguments() == null){
-            if (getFragmentManager() != null) {
-                getFragmentManager().popBackStack();
-            }
+            popFragment();
             return;
         }
         this.mResourceName = getArguments().getString(KEY_RESOURCE_NAME,"");
@@ -102,11 +100,12 @@ public class Detailfragment extends BaseFragment {
         showProgress(this.mProgressBar, this.mRlContentView);
         this.mDetailViewModel.retrieveResourceDetails(this.mResourceName);
         this.mDetailViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
-            showContent(this.mProgressBar, this.mRlContentView);
             if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
                 showMessage(R.string.message_no_data_available);
+                popFragment();
                 return;
             }
+            showContent(this.mProgressBar, this.mRlContentView);
             setResourceData(resourceDetailModel.getResults());
         });
     }
@@ -126,8 +125,8 @@ public class Detailfragment extends BaseFragment {
         this.mTvResourceGender.setText(result.getGender());
         this.mTvResourceHairColor.setText(result.getHairColor());
         this.mTvResourceSkinColor.setText(result.getSkinColor());
-        this.mTvResourceHeight.setText(result.getHeight());
-        this.mTvResourceMass.setText(result.getMass());
+        this.mTvResourceHeight.setText(String.format("%s Cm", result.getHeight()));
+        this.mTvResourceMass.setText(String.format("%s Kg", result.getMass()));
         this.mTvResourceBirthYear.setText(result.getBirthYear());
     }
 
