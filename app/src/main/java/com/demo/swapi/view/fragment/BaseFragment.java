@@ -63,7 +63,7 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
     @Override
     public boolean isNetworkConnected() {
         if (this.mActivity != null) {
-            mActivity.isNetworkConnected();
+            return mActivity.isNetworkConnected();
         }
         return false;
     }

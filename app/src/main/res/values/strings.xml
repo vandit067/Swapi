@@ -16,4 +16,5 @@
     <string name="label_gender">Gender:</string>
     <string name="label_detail">Details</string>
     <string name="message_no_data_available">No data available</string>
+    <string name="message_network_check">Please check your network connection</string>
 </resources>
