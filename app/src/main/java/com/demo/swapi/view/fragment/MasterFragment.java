@@ -81,11 +81,15 @@ public class MasterFragment extends BaseFragment {
     }
 
     /**
-     * Pass search resource name to  {@link Detailfragment}
+     * Check network connection and pass search resource name to  {@link Detailfragment}
      * @param resourceName name of resource
      */
     private void performSearch(@NonNull String resourceName){
         hideKeyboard();
+        if(!isNetworkConnected()){
+            showError(R.string.message_network_check);
+            return;
+        }
         Bundle bundle = new Bundle();
         bundle.putString("key_resource_name", resourceName);
         // Navigation component will navigate to detail screen. We don't need to worry about fragment commit, transaction, etc.
