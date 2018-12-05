@@ -13,8 +13,11 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import butterknife.Unbinder;
 
 public abstract class BaseActivity extends AppCompatActivity implements IBaseView {
@@ -83,9 +86,26 @@ public abstract class BaseActivity extends AppCompatActivity implements IBaseVie
         UiUtils.hideKeyBoard(view);
     }
 
-    public void replaceFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
-        getSupportFragmentManager().beginTransaction().replace(R.id.activity_master_container, fragment,
+    @UiThread
+    public void addFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Fragment lastStackFragment = getLastStackedFragment();
+        if (lastStackFragment == null) {
+            return;
+        }
+        fragmentTransaction.hide(lastStackFragment);
+        fragmentTransaction.add(R.id.activity_master_container, fragment,
                 fragment.getClass().getSimpleName()).addToBackStack(backFragmentName).commit();
+    }
+
+    @UiThread
+    public Fragment getLastStackedFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1);
+            return fragmentManager.findFragmentByTag(entry.getName());
+        }
+        return fragmentManager.findFragmentById(R.id.activity_master_container);
     }
 
     public void setUnBinder(Unbinder unBinder) {

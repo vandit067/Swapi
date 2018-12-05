@@ -98,9 +98,9 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
         errorView.setVisibility(View.VISIBLE);
     }
 
-    public void replaceFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
+    public void addFragment(@NonNull Fragment fragment, @NonNull String backFragmentName){
         if (this.mActivity != null) {
-            mActivity.replaceFragment(fragment, backFragmentName);
+            mActivity.addFragment(fragment, backFragmentName);
         }
     }
 

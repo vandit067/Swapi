@@ -75,6 +75,14 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         return view;
     }
 
+    private void initUI(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
+        this.mRvResources.setLayoutManager(linearLayoutManager);
+        setRecyclerViewItemAnimation(this.mRvResources, R.anim.layout_animation_from_bottom);
+        this.mResourcesAdapter = new ResourcesAdapter(new ArrayList<>(), this);
+        this.mRvResources.setAdapter(this.mResourcesAdapter);
+    }
+
     @OnClick(R.id.fragment_master_iv_search)
     void performResourceSearch(){
         if (TextUtils.isEmpty(this.mTietResource.getText())) {
@@ -109,7 +117,7 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
 
     @Override
     public void onResourceSelected(int position, @NonNull Result result) {
-        replaceFragment(Detailfragment.newInstance(result), getClass().getSimpleName());
+        addFragment(Detailfragment.newInstance(result), getClass().getSimpleName());
     }
 
     /**
@@ -122,6 +130,7 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
             showError(R.string.message_network_check);
             return;
         }
+        this.mResourcesAdapter.clearList();
         this.retrieveAndSetResourcesList(resourceName);
     }
 
@@ -142,18 +151,8 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
-        this.mRvResources.setLayoutManager(linearLayoutManager);
-        setRecyclerViewItemAnimation(this.mRvResources, R.anim.layout_animation_from_bottom);
-        this.mResourcesAdapter = new ResourcesAdapter(new ArrayList<>(), this);
-        this.mRvResources.setAdapter(this.mResourcesAdapter);
-    }
-
-    @Override
     protected void setUp(@NonNull View view) {
-
+        this.initUI();
     }
 
     @Override
