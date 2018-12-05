@@ -1,11 +1,14 @@
 
 package com.demo.swapi.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+public class Result implements Parcelable {
 
     @SerializedName("name")
     @Expose
@@ -184,4 +187,62 @@ public class Result {
         this.url = url;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.name);
+        dest.writeString(this.height);
+        dest.writeString(this.mass);
+        dest.writeString(this.hairColor);
+        dest.writeString(this.skinColor);
+        dest.writeString(this.eyeColor);
+        dest.writeString(this.birthYear);
+        dest.writeString(this.gender);
+        dest.writeString(this.homeworld);
+        dest.writeStringList(this.films);
+        dest.writeStringList(this.species);
+        dest.writeStringList(this.vehicles);
+        dest.writeStringList(this.starships);
+        dest.writeString(this.created);
+        dest.writeString(this.edited);
+        dest.writeString(this.url);
+    }
+
+    public Result() {
+    }
+
+    protected Result(Parcel in) {
+        this.name = in.readString();
+        this.height = in.readString();
+        this.mass = in.readString();
+        this.hairColor = in.readString();
+        this.skinColor = in.readString();
+        this.eyeColor = in.readString();
+        this.birthYear = in.readString();
+        this.gender = in.readString();
+        this.homeworld = in.readString();
+        this.films = in.createStringArrayList();
+        this.species = in.createStringArrayList();
+        this.vehicles = in.createStringArrayList();
+        this.starships = in.createStringArrayList();
+        this.created = in.readString();
+        this.edited = in.readString();
+        this.url = in.readString();
+    }
+
+    public static final Parcelable.Creator<Result> CREATOR = new Parcelable.Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel source) {
+            return new Result(source);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
 }

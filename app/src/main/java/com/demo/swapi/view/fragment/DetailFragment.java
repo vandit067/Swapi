@@ -13,10 +13,10 @@ import com.demo.swapi.R;
 import com.demo.swapi.model.Result;
 import com.demo.swapi.viewmodel.DetailViewModel;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,11 +24,10 @@ import butterknife.ButterKnife;
 /**
  * This class will display detail information of resource.
  */
-public class Detailfragment extends BaseFragment {
+public class DetailFragment extends BaseFragment {
 
-    private static final String KEY_RESOURCE_NAME = "key_resource_name";
+    private static final String KEY_RESULT = "key_result";
     private DetailViewModel mDetailViewModel;
-    private String mResourceName;
 
     @BindView(R.id.fragment_detail_progressbar)
     ProgressBar mProgressBar;
@@ -52,28 +51,25 @@ public class Detailfragment extends BaseFragment {
     RelativeLayout mRlContentView;
 
     /**
-     * Constructor to create instance of {@link Detailfragment}
-     * @param resourceName search resource name from {@link MasterFragment}
-     * @return instance of {@link Detailfragment}
+     * Constructor to create instance of {@link DetailFragment}
+     *
+     * @param result instnce of @{@link Result} from {@link MasterFragment}
+     * @return instance of {@link DetailFragment}
      */
-    static Detailfragment newInstance(@NonNull String resourceName) {
+    static DetailFragment newInstance(@NonNull Result result) {
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_RESOURCE_NAME, resourceName);
-        Detailfragment detailfragment = new Detailfragment();
-        detailfragment.setArguments(bundle);
-        return detailfragment;
+        bundle.putParcelable(KEY_RESULT, result);
+        DetailFragment detailFragment = new DetailFragment();
+        detailFragment.setArguments(bundle);
+        return detailFragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() == null){
-            popFragment();
-            return;
-        }
-        this.mResourceName = getArguments().getString(KEY_RESOURCE_NAME,"");
         // We are not creating instance of ViewModel class here.
         this.mDetailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
+        this.mDetailViewModel.getResult().observe(this, mResultObserver);
     }
 
     @Nullable
@@ -85,47 +81,58 @@ public class Detailfragment extends BaseFragment {
     }
 
     /**
-     * Setup views and entry point to perform operations
+     * Setup views
      * @param view current view.
      */
     @Override
     protected void setUp(@NonNull View view) {
-        this.retrieveResourceDetail();
+        if (getArguments() == null) {
+            popFragment();
+            return;
+        }
+        Result result = getArguments().getParcelable(KEY_RESULT);
+        if(result == null){
+            popFragment();
+            return;
+        }
+        this.retrieveResourceDetail(result);
     }
 
     /**
      * Initiate resource detail api call and get response.
      */
-    private void retrieveResourceDetail(){
+    private void retrieveResourceDetail(@NonNull Result result) {
         showProgress(this.mProgressBar, this.mRlContentView);
-        this.mDetailViewModel.retrieveResourceDetails(this.mResourceName);
-        this.mDetailViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
-            if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
+        this.mDetailViewModel.setResult(result);
+    }
+
+    /**
+     * {@link Result} observer which will observe event through {@link androidx.lifecycle.LiveData} and update UI accordingly.
+     */
+    private final Observer<Result> mResultObserver = new Observer<Result>() {
+        @Override
+        public void onChanged(Result result) {
+            if (result == null) {
                 showMessage(R.string.message_no_data_available);
                 popFragment();
                 return;
             }
-            showContent(this.mProgressBar, this.mRlContentView);
-            setResourceData(resourceDetailModel.getResults());
-        });
-    }
+            showContent(mProgressBar, mRlContentView);
+            setResourceData(result);
+        }
+    };
 
     /**
      * Set resource details in view from @{@link Result}
-     * @param resultList response return from Api call.
      */
-    private void setResourceData(@NonNull List<Result> resultList){
-        Result result = resultList.get(0);
-        if(result == null){
-            showMessage(getString(R.string.message_no_data_available));
-            return;
-        }
+    @UiThread
+    private void setResourceData(@NonNull Result result) {
         this.mTvResourceName.setText(result.getName());
         this.mTvResourceEyeColor.setText(result.getEyeColor());
         this.mTvResourceGender.setText(result.getGender());
         this.mTvResourceHairColor.setText(result.getHairColor());
         this.mTvResourceSkinColor.setText(result.getSkinColor());
-        this.mTvResourceHeight.setText(String.format("%s Cm", result.getHeight()));
+        this.mTvResourceHeight.setText(String.format("%s Cm",result.getHeight()));
         this.mTvResourceMass.setText(String.format("%s Kg", result.getMass()));
         this.mTvResourceBirthYear.setText(result.getBirthYear());
     }
@@ -133,7 +140,7 @@ public class Detailfragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(this.mDetailViewModel != null){
+        if (this.mDetailViewModel != null) {
             this.mDetailViewModel = null;
         }
     }
