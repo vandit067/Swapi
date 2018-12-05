@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/item_resources_rl_main"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/item_resource_tv_name"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/item_resource_tv_birth_year"
+        android:maxLines="1"
+        android:textColor="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/item_resource_tv_gender"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_resource_tv_name"
+        android:maxLines="1"
+        android:textColor="@color/colorGrey" />
+
+    <TextView
+        android:id="@+id/item_resource_tv_birth_year"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:maxLines="1"
+        android:textColor="@android:color/black" />
+</RelativeLayout>

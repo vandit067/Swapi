@@ -13,8 +13,6 @@ import com.demo.swapi.R;
 import com.demo.swapi.model.Result;
 import com.demo.swapi.viewmodel.DetailViewModel;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
@@ -26,9 +24,8 @@ import butterknife.ButterKnife;
  */
 public class Detailfragment extends BaseFragment {
 
-    private static final String KEY_RESOURCE_NAME = "key_resource_name";
+    private static final String KEY_RESULT = "key_result";
     private DetailViewModel mDetailViewModel;
-    private String mResourceName;
 
     @BindView(R.id.fragment_detail_progressbar)
     ProgressBar mProgressBar;
@@ -53,12 +50,13 @@ public class Detailfragment extends BaseFragment {
 
     /**
      * Constructor to create instance of {@link Detailfragment}
-     * @param resourceName search resource name from {@link MasterFragment}
+     *
+     * @param result instnce of @{@link Result} from {@link MasterFragment}
      * @return instance of {@link Detailfragment}
      */
-    static Detailfragment newInstance(@NonNull String resourceName) {
+    static Detailfragment newInstance(@NonNull Result result) {
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_RESOURCE_NAME, resourceName);
+        bundle.putParcelable(KEY_RESULT, result);
         Detailfragment detailfragment = new Detailfragment();
         detailfragment.setArguments(bundle);
         return detailfragment;
@@ -67,13 +65,18 @@ public class Detailfragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() == null){
+        if (getArguments() == null) {
             popFragment();
             return;
         }
-        this.mResourceName = getArguments().getString(KEY_RESOURCE_NAME,"");
         // We are not creating instance of ViewModel class here.
         this.mDetailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
+        Result result = getArguments().getParcelable(KEY_RESULT);
+        if(result == null){
+            popFragment();
+            return;
+        }
+        this.mDetailViewModel.setResult(result);
     }
 
     @Nullable
@@ -86,6 +89,7 @@ public class Detailfragment extends BaseFragment {
 
     /**
      * Setup views and entry point to perform operations
+     *
      * @param view current view.
      */
     @Override
@@ -96,36 +100,29 @@ public class Detailfragment extends BaseFragment {
     /**
      * Initiate resource detail api call and get response.
      */
-    private void retrieveResourceDetail(){
+    private void retrieveResourceDetail() {
         showProgress(this.mProgressBar, this.mRlContentView);
-        this.mDetailViewModel.retrieveResourceDetails(this.mResourceName);
-        this.mDetailViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
-            if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
-                showMessage(R.string.message_no_data_available);
-                popFragment();
-                return;
-            }
-            showContent(this.mProgressBar, this.mRlContentView);
-            setResourceData(resourceDetailModel.getResults());
+        if (this.mDetailViewModel.getResult() == null) {
+            showMessage(R.string.message_no_data_available);
+            popFragment();
+            return;
+        }
+        this.mDetailViewModel.getResult().observe(this, result -> {
+            showContent(mProgressBar, mRlContentView);
+            setResourceData(result);
         });
     }
 
     /**
      * Set resource details in view from @{@link Result}
-     * @param resultList response return from Api call.
      */
-    private void setResourceData(@NonNull List<Result> resultList){
-        Result result = resultList.get(0);
-        if(result == null){
-            showMessage(getString(R.string.message_no_data_available));
-            return;
-        }
+    private void setResourceData(@NonNull Result result) {
         this.mTvResourceName.setText(result.getName());
         this.mTvResourceEyeColor.setText(result.getEyeColor());
         this.mTvResourceGender.setText(result.getGender());
         this.mTvResourceHairColor.setText(result.getHairColor());
         this.mTvResourceSkinColor.setText(result.getSkinColor());
-        this.mTvResourceHeight.setText(String.format("%s Cm", result.getHeight()));
+        this.mTvResourceHeight.setText(String.format("%s Cm",result.getHeight()));
         this.mTvResourceMass.setText(String.format("%s Kg", result.getMass()));
         this.mTvResourceBirthYear.setText(result.getBirthYear());
     }
@@ -133,7 +130,7 @@ public class Detailfragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(this.mDetailViewModel != null){
+        if (this.mDetailViewModel != null) {
             this.mDetailViewModel = null;
         }
     }

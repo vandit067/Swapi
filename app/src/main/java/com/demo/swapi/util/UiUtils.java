@@ -2,11 +2,14 @@ package com.demo.swapi.util;
 
 import android.content.Context;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * This class is use for perform ui related operations.
@@ -39,5 +42,15 @@ public class UiUtils {
     public static void showKeyBoard(@NonNull View view){
         InputMethodManager inputMethodManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    /**
+     * Set recyclerview item animation
+     * @param recyclerView instance of {@link RecyclerView}
+     * @param animId animation id.
+     */
+    public static void setRecyclerViewItemAnimation(@NonNull RecyclerView recyclerView, int animId) {
+        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(recyclerView.getContext(), animId);
+        recyclerView.setLayoutAnimation(animation);
     }
 }

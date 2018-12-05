@@ -8,14 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.demo.swapi.R;
+import com.demo.swapi.interfaces.IMasterFragmentInteractionListener;
+import com.demo.swapi.model.Result;
+import com.demo.swapi.view.adapter.ResourcesAdapter;
+import com.demo.swapi.viewmodel.MasterViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -25,7 +36,7 @@ import butterknife.OnTextChanged;
 /**
  * This class is used for perform resource search.
  */
-public class MasterFragment extends BaseFragment {
+public class MasterFragment extends BaseFragment implements IMasterFragmentInteractionListener {
 
     @BindView(R.id.fragment_master_iv_search)
     ImageView mIvSearchResource;
@@ -33,13 +44,27 @@ public class MasterFragment extends BaseFragment {
     TextInputLayout mTilResource;
     @BindView(R.id.fragment_master_tiet_resource)
     TextInputEditText mTietResource;
+    @BindView(R.id.fragment_master_progressbar)
+    ProgressBar mProgressBar;
+    @BindView(R.id.fragment_master_cv_content)
+    CardView mCvContentView;
+    @BindView(R.id.fragment_master_rv_resources)
+    RecyclerView mRvResources;
+
+    private MasterViewModel mMasterViewModel;
+    private ResourcesAdapter mResourcesAdapter;
 
     // Create new instance of MasterFragment
     public static MasterFragment newInstance() {
-        Bundle args = new Bundle();
-        MasterFragment fragment = new MasterFragment();
-        fragment.setArguments(args);
-        return fragment;
+       return new MasterFragment();
+    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // We are not creating instance of ViewModel class here.
+        this.mMasterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
     }
 
     @Nullable
@@ -56,13 +81,16 @@ public class MasterFragment extends BaseFragment {
             this.mTilResource.setError(getString(R.string.message_enter_resource_name));
             return;
         }
-        this.performSearch(this.mTietResource.getText().toString());
+        this.performSearch(""+this.mTietResource.getText());
     }
 
     @OnTextChanged(value = R.id.fragment_master_tiet_resource, callback = OnTextChanged.Callback.TEXT_CHANGED)
     void onTextChanged(Editable editable){
         if(editable.length() > 0){
             this.mTilResource.setError("");
+        }
+        if(editable.length() == 0 && this.mResourcesAdapter != null){
+           this.mResourcesAdapter.clearList();
         }
     }
 
@@ -79,6 +107,11 @@ public class MasterFragment extends BaseFragment {
         return false;
     }
 
+    @Override
+    public void onResourceSelected(int position, @NonNull Result result) {
+        replaceFragment(Detailfragment.newInstance(result), getClass().getSimpleName());
+    }
+
     /**
      * Check network connection and pass search resource name to  {@link Detailfragment}
      * @param resourceName name of resource
@@ -89,11 +122,45 @@ public class MasterFragment extends BaseFragment {
             showError(R.string.message_network_check);
             return;
         }
-        replaceFragment(Detailfragment.newInstance(resourceName), getClass().getSimpleName());
+        this.retrieveAndSetResourcesList(resourceName);
+    }
+
+    /**
+     * Initiate resources list api call and get response.
+     */
+    private void retrieveAndSetResourcesList(@NonNull String mResourceName){
+        showProgress(this.mProgressBar, this.mCvContentView);
+        this.mMasterViewModel.retrieveResourceDetails(mResourceName);
+        this.mMasterViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
+            showContent(this.mProgressBar, this.mCvContentView);
+            if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
+                showMessage(R.string.message_no_data_available);
+                return;
+            }
+            this.mResourcesAdapter.swapAdapter(resourceDetailModel.getResults());
+        });
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
+        this.mRvResources.setLayoutManager(linearLayoutManager);
+        setRecyclerViewItemAnimation(this.mRvResources, R.anim.layout_animation_from_bottom);
+        this.mResourcesAdapter = new ResourcesAdapter(new ArrayList<>(), this);
+        this.mRvResources.setAdapter(this.mResourcesAdapter);
     }
 
     @Override
     protected void setUp(@NonNull View view) {
-        // Nothing to do here
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(this.mMasterViewModel != null){
+            this.mMasterViewModel = null;
+        }
     }
 }

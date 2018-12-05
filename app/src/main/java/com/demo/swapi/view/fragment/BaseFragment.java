@@ -3,13 +3,17 @@ package com.demo.swapi.view.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 
 import com.demo.swapi.interfaces.IBaseView;
+import com.demo.swapi.util.UiUtils;
 import com.demo.swapi.view.activity.BaseActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.Unbinder;
 
 public abstract class BaseFragment extends Fragment implements IBaseView {
@@ -118,6 +122,15 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
 
     public BaseActivity getBaseActivity() {
         return this.mActivity;
+    }
+
+    /**
+     * Set recyclerview item animation
+     * @param recyclerView instance of {@link RecyclerView}
+     * @param animId animation id.
+     */
+    public void setRecyclerViewItemAnimation(@NonNull RecyclerView recyclerView, int animId) {
+        UiUtils.setRecyclerViewItemAnimation(recyclerView, animId);
     }
 
     @Override

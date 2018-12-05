@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,8 +15,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:padding="5dp"
-            android:layout_centerInParent="true"
             app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="4dp"
             app:cardElevation="4dp">
 
             <com.google.android.material.textfield.TextInputLayout
@@ -33,25 +34,52 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:paddingEnd="40dp"
-                    android:paddingStart="5dp"
                     android:imeOptions="actionSearch"
                     android:inputType="text"
-                    android:maxLines="1" />
+                    android:maxLines="1"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="40dp" />
             </com.google.android.material.textfield.TextInputLayout>
+
             <ImageView
-                android:layout_gravity="end|center_vertical"
                 android:id="@+id/fragment_master_iv_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
+                android:layout_gravity="end|center_vertical"
                 android:layout_margin="8dp"
-                android:clickable="true"
-                android:focusable="true"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
-                android:src="@drawable/ic_search_24dp"
-                android:contentDescription="@string/label_accessibility_search_resource"/>
+                android:clickable="true"
+                android:contentDescription="@string/label_accessibility_search_resource"
+                android:focusable="true"
+                android:padding="5dp"
+                android:src="@drawable/ic_search_24dp" />
+        </androidx.cardview.widget.CardView>
+
+        <ProgressBar
+            android:id="@+id/fragment_master_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/fragment_master_cv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fragment_master_cv_enter_resource_info"
+            android:layout_margin="8dp"
+            android:padding="5dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="5dp"
+            app:cardElevation="4dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragment_master_rv_resources"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listItem="@layout/item_resource" />
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
