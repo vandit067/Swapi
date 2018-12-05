@@ -3,6 +3,7 @@ package com.demo.swapi.view.fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.demo.swapi.model.ApiResponseDataWrapper;
 import com.demo.swapi.model.ResourceDetailModel;
 import com.demo.swapi.model.Result;
 import com.demo.swapi.view.adapter.ResourcesAdapter;
+import com.demo.swapi.view.custom.EndlessRecyclerViewScrollListener;
 import com.demo.swapi.viewmodel.MasterViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -56,12 +58,39 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
 
     private MasterViewModel mMasterViewModel;
     private ResourcesAdapter mResourcesAdapter;
+    private EndlessRecyclerViewScrollListener mEndlessRecyclerViewScrollListener;
+
+    /**
+     * {@link ApiResponseDataWrapper} observer which will observe event through {@link androidx.lifecycle.LiveData} and update UI accordingly.
+     */
+    private final Observer<ApiResponseDataWrapper> mApiResponseDataWrapperObserver = new Observer<ApiResponseDataWrapper>() {
+        @Override
+        public void onChanged(@Nullable ApiResponseDataWrapper apiResponseDataWrapper) {
+            //Handle UI
+            showContent(mProgressBar, mCvContentView);
+            mResourcesAdapter.removeLoadingView();
+            if (apiResponseDataWrapper == null) {
+                showError(R.string.message_no_data_available);
+                return;
+            }
+            if (apiResponseDataWrapper.getThrowable() != null) {
+                showError(displayError(apiResponseDataWrapper.getThrowable()));
+                return;
+            }
+            ResourceDetailModel resourceDetailModel = (ResourceDetailModel) apiResponseDataWrapper.getResponse();
+            if (resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()) {
+                showError(R.string.message_no_data_available);
+                return;
+            }
+            mMasterViewModel.setTotalItemCount(resourceDetailModel.getCount());
+            mResourcesAdapter.addItems(resourceDetailModel.getResults());
+        }
+    };
 
     // Create new instance of MasterFragment
     public static MasterFragment newInstance() {
-       return new MasterFragment();
+        return new MasterFragment();
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +99,6 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         this.mMasterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
         this.mMasterViewModel.getResourceDetailModelObserver().observe(this, mApiResponseDataWrapperObserver);
-
     }
 
     @Nullable
@@ -84,35 +112,37 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
     /**
      * Initialize Ui Component
      */
-    private void initUI(){
+    private void initUI() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
         this.mRvResources.setLayoutManager(linearLayoutManager);
         setRecyclerViewItemAnimation(this.mRvResources, R.anim.layout_animation_from_bottom);
         this.mResourcesAdapter = new ResourcesAdapter(new ArrayList<>(), this);
         this.mRvResources.setAdapter(this.mResourcesAdapter);
+        this.mEndlessRecyclerViewScrollListener = getRecyclerViewScrollListener(linearLayoutManager);
+        this.mRvResources.addOnScrollListener(this.mEndlessRecyclerViewScrollListener);
     }
 
     @OnClick(R.id.fragment_master_iv_search)
-    void performResourceSearch(){
+    void performResourceSearch() {
         if (TextUtils.isEmpty(this.mTietResource.getText())) {
             this.mTilResource.setError(getString(R.string.message_enter_resource_name));
             return;
         }
-        this.performSearch(""+this.mTietResource.getText());
+        this.performSearch("" + this.mTietResource.getText());
     }
 
     @OnTextChanged(value = R.id.fragment_master_tiet_resource, callback = OnTextChanged.Callback.TEXT_CHANGED)
-    void onTextChanged(Editable editable){
-        if(editable.length() > 0){
+    void onTextChanged(Editable editable) {
+        if (editable.length() > 0) {
             this.mTilResource.setError("");
         }
-        if(editable.length() == 0 && this.mResourcesAdapter != null){
-           this.mResourcesAdapter.clearList();
+        if (editable.length() == 0 && this.mResourcesAdapter != null) {
+            this.mResourcesAdapter.removeAll();
         }
     }
 
     @OnEditorAction(R.id.fragment_master_tiet_resource)
-    boolean onEditorAction(TextView v, int actionId){
+    boolean onEditorAction(TextView v, int actionId) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
             if (TextUtils.isEmpty(v.getText())) {
                 this.mTilResource.setError(getString(R.string.message_enter_resource_name));
@@ -131,53 +161,43 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
 
     /**
      * Check network connection and pass search resource name to  {@link DetailFragment}
+     *
      * @param resourceName name of resource
      */
-    private void performSearch(@NonNull String resourceName){
+    private void performSearch(@NonNull String resourceName) {
         hideKeyboard();
-        if(!isNetworkConnected()){
+        if (!isNetworkConnected()) {
             showError(R.string.error_network_check);
             return;
         }
-        this.mResourcesAdapter.clearList();
+        this.mResourcesAdapter.removeAll();
+        this.mEndlessRecyclerViewScrollListener.resetState();
         this.retrieveAndSetResourcesList(resourceName);
     }
 
     /**
      * Initiate resources list api call and get response.
      */
-    private void retrieveAndSetResourcesList(@NonNull String mResourceName){
+    private void retrieveAndSetResourcesList(@NonNull String mResourceName) {
         showProgress(this.mProgressBar, this.mCvContentView);
-        this.mMasterViewModel.retrieveResourceDetails(mResourceName);
+        this.mMasterViewModel.retrieveResourceDetails(mResourceName, 1);
+    }
+
+    private EndlessRecyclerViewScrollListener getRecyclerViewScrollListener(@NonNull LinearLayoutManager layoutManager) {
+        return new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                Log.v("LoadMore:", "Page: " + page + " - TotalItems : " + totalItemsCount);
+                if (totalItemsCount < mMasterViewModel.getTotalItemCount() && mResourcesAdapter.addLoadingView()) {
+                    mMasterViewModel.retrieveResourceDetails("" + mTietResource.getText(), page);
+                }
+            }
+        };
     }
 
     /**
-     * {@link ApiResponseDataWrapper} observer which will observe event through {@link androidx.lifecycle.LiveData} and update UI accordingly.
-     */
-    private final Observer<ApiResponseDataWrapper> mApiResponseDataWrapperObserver = new Observer<ApiResponseDataWrapper>() {
-        @Override
-        public void onChanged(@Nullable ApiResponseDataWrapper apiResponseDataWrapper) {
-            //Handle UI
-            showContent(mProgressBar, mCvContentView);
-            if(apiResponseDataWrapper == null){
-                showError(R.string.message_no_data_available);
-                return;
-            }
-            if(apiResponseDataWrapper.getThrowable() != null){
-                showError(displayError(apiResponseDataWrapper.getThrowable()));
-                return;
-            }
-            ResourceDetailModel resourceDetailModel = (ResourceDetailModel) apiResponseDataWrapper.getResponse();
-            if (resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()) {
-                showError(R.string.message_no_data_available);
-                return;
-            }
-            mResourcesAdapter.swapAdapter(resourceDetailModel.getResults());
-        }
-    };
-
-    /**
      * Initialize your UI components here.
+     *
      * @param view current view
      */
     @Override
@@ -188,7 +208,7 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(this.mMasterViewModel != null){
+        if (this.mMasterViewModel != null) {
             this.mMasterViewModel = null;
         }
     }

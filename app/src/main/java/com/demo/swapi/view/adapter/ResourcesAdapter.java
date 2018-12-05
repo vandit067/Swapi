@@ -3,6 +3,7 @@ package com.demo.swapi.view.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.demo.swapi.R;
@@ -18,7 +19,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ResourcesAdapter extends RecyclerView.Adapter<ResourcesAdapter.ResourceViewHolder> {
+public class ResourcesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    /**
+     * ViewTypes serve as a mapping point to which layout should be inflated
+     */
+    private static final int VIEW_TYPE_LIST = 0;
+    private static final int VIEW_TYPE_LOADING = 1;
 
     @NonNull
     private List<Result> mResultList;
@@ -30,22 +37,35 @@ public class ResourcesAdapter extends RecyclerView.Adapter<ResourcesAdapter.Reso
         this.mIMasterFragmentInteractionListener = iMasterFragmentInteractionListener;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mResultList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_LIST;
+    }
+
     @NonNull
     @Override
-    public ResourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_LOADING) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_progress_bar, parent, false);
+            return new ProgressBarViewHolder(view);
+        }
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_resource, parent, false);
         return new ResourceViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ResourceViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder.getItemViewType() == VIEW_TYPE_LOADING) {
+            return; // no-op
+        }
+        ResourceViewHolder resourceViewHolder = (ResourceViewHolder) holder;
         Result result = mResultList.get(position);
         if(result == null){
             return;
         }
-        holder.tvGender.setText(result.getGender());
-        holder.tvBirthYear.setText(result.getBirthYear());
-        holder.tvName.setText(result.getName());
+        resourceViewHolder.tvGender.setText(result.getGender());
+        resourceViewHolder.tvBirthYear.setText(result.getBirthYear());
+        resourceViewHolder.tvName.setText(result.getName());
     }
 
     @Override
@@ -53,34 +73,93 @@ public class ResourcesAdapter extends RecyclerView.Adapter<ResourcesAdapter.Reso
         return this.mResultList.size();
     }
 
-    /**
-     * Replace list content with new list content
-     * @param resultList list of @{@link Result}
-     */
-    public void swapAdapter(@NonNull List<Result> resultList) {
-        this.mResultList = resultList;
-        notifyDataSetChanged();
+
+    public void add(@Nullable Result result) {
+        add(-1, result);
     }
 
     /**
-     * Clear list and notify
+     * Add progress view at end of the list
+     * @return true if view added in to the list.
      */
-    public void clearList(){
-        if(this.mResultList.isEmpty()){
+    public boolean addLoadingView() {
+        if (getItemViewType(mResultList.size() - 1) != VIEW_TYPE_LOADING) {
+            add(null);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add item at position.
+     * @param position position
+     * @param result instance of {@link Result}
+     */
+    public void add(int position, @Nullable Result result) {
+        if (position > 0) {
+            mResultList.add(position, result);
+            notifyItemInserted(position);
+        } else {
+            mResultList.add(result);
+            notifyItemInserted(mResultList.size() - 1);
+        }
+    }
+
+    /**
+     * Add item at position in list.
+     * @param resultList new list of {@link Result}
+     */
+    public void addItems(@NonNull List<Result> resultList) {
+        mResultList.addAll(resultList);
+        notifyItemRangeInserted(getItemCount(), mResultList.size() - 1);
+    }
+
+    /**
+     * Remove item from list position.
+     */
+    private void remove(int position) {
+        if (mResultList.size() < position) {
             return;
         }
-        this.mResultList.clear();
+        mResultList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    /**
+     * Remove all views from adapter
+     */
+    public void removeAll() {
+        mResultList.clear();
         notifyDataSetChanged();
     }
 
-    @Nullable
-    public Result getItemAtPosition(int position){
-        if(position < 0 || position > mResultList.size()){
-            return null;
+    /**
+     * Remove progress view from footer of list and return it's status
+     * @return is view removed or not.
+     */
+    public boolean removeLoadingView() {
+        if (mResultList.size() > 1) {
+            int loadingViewPosition = mResultList.size() - 1;
+            if (getItemViewType(loadingViewPosition) == VIEW_TYPE_LOADING) {
+                remove(loadingViewPosition);
+                return true;
+            }
         }
-        return this.mResultList.get(position);
+        return false;
     }
 
+    // Progressbar view holder which will display on load more
+    public class ProgressBarViewHolder extends RecyclerView.ViewHolder {
+
+        final ProgressBar progressBar;
+
+        ProgressBarViewHolder(View view) {
+            super(view);
+            progressBar = view.findViewById(R.id.progress_bar);
+        }
+    }
+
+    // View holder which will display list content
     class ResourceViewHolder extends RecyclerView.ViewHolder{
 
         @BindView(R.id.item_resource_tv_birth_year)
@@ -90,7 +169,7 @@ public class ResourcesAdapter extends RecyclerView.Adapter<ResourcesAdapter.Reso
         @BindView(R.id.item_resource_tv_name)
         TextView tvName;
 
-        public ResourceViewHolder(@NonNull View itemView) {
+        ResourceViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

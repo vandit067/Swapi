@@ -18,8 +18,18 @@ public class MasterViewModel extends BaseViewModel {
 
     private MutableLiveData<ApiResponseDataWrapper> mResourceDetailModelObserver;
 
+    private int totalItemCount = 0;
+
     public MasterViewModel(@NonNull Application application) {
         super(application);
+    }
+
+    public int getTotalItemCount() {
+        return totalItemCount;
+    }
+
+    public void setTotalItemCount(int totalItemCount) {
+        this.totalItemCount = totalItemCount;
     }
 
     @UiThread
@@ -31,8 +41,8 @@ public class MasterViewModel extends BaseViewModel {
     }
 
     @WorkerThread
-    public void retrieveResourceDetails(@NonNull String resourceName){
-        addDisposable(getApiServices().getApiInterface().getResourceDetail(resourceName)
+    public void retrieveResourceDetails(@NonNull String resourceName, int page){
+        addDisposable(getApiServices().getApiInterface().getResourceDetail(resourceName, page)
                 .subscribeOn(getAppRxSchedulers().io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(resourceDetailModel -> mResourceDetailModelObserver.postValue(new ApiResponseDataWrapper<ResourceDetailModel>(resourceDetailModel))
