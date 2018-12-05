@@ -15,6 +15,8 @@ import com.demo.swapi.viewmodel.DetailViewModel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,7 +24,7 @@ import butterknife.ButterKnife;
 /**
  * This class will display detail information of resource.
  */
-public class Detailfragment extends BaseFragment {
+public class DetailFragment extends BaseFragment {
 
     private static final String KEY_RESULT = "key_result";
     private DetailViewModel mDetailViewModel;
@@ -49,34 +51,25 @@ public class Detailfragment extends BaseFragment {
     RelativeLayout mRlContentView;
 
     /**
-     * Constructor to create instance of {@link Detailfragment}
+     * Constructor to create instance of {@link DetailFragment}
      *
      * @param result instnce of @{@link Result} from {@link MasterFragment}
-     * @return instance of {@link Detailfragment}
+     * @return instance of {@link DetailFragment}
      */
-    static Detailfragment newInstance(@NonNull Result result) {
+    static DetailFragment newInstance(@NonNull Result result) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(KEY_RESULT, result);
-        Detailfragment detailfragment = new Detailfragment();
-        detailfragment.setArguments(bundle);
-        return detailfragment;
+        DetailFragment detailFragment = new DetailFragment();
+        detailFragment.setArguments(bundle);
+        return detailFragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() == null) {
-            popFragment();
-            return;
-        }
         // We are not creating instance of ViewModel class here.
         this.mDetailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
-        Result result = getArguments().getParcelable(KEY_RESULT);
-        if(result == null){
-            popFragment();
-            return;
-        }
-        this.mDetailViewModel.setResult(result);
+        this.mDetailViewModel.getResult().observe(this, mResultObserver);
     }
 
     @Nullable
@@ -88,34 +81,51 @@ public class Detailfragment extends BaseFragment {
     }
 
     /**
-     * Setup views and entry point to perform operations
-     *
+     * Setup views
      * @param view current view.
      */
     @Override
     protected void setUp(@NonNull View view) {
-        this.retrieveResourceDetail();
+        if (getArguments() == null) {
+            popFragment();
+            return;
+        }
+        Result result = getArguments().getParcelable(KEY_RESULT);
+        if(result == null){
+            popFragment();
+            return;
+        }
+        this.retrieveResourceDetail(result);
     }
 
     /**
      * Initiate resource detail api call and get response.
      */
-    private void retrieveResourceDetail() {
+    private void retrieveResourceDetail(@NonNull Result result) {
         showProgress(this.mProgressBar, this.mRlContentView);
-        if (this.mDetailViewModel.getResult() == null) {
-            showMessage(R.string.message_no_data_available);
-            popFragment();
-            return;
-        }
-        this.mDetailViewModel.getResult().observe(this, result -> {
+        this.mDetailViewModel.setResult(result);
+    }
+
+    /**
+     * {@link Result} observer which will observe event through {@link androidx.lifecycle.LiveData} and update UI accordingly.
+     */
+    private final Observer<Result> mResultObserver = new Observer<Result>() {
+        @Override
+        public void onChanged(Result result) {
+            if (result == null) {
+                showMessage(R.string.message_no_data_available);
+                popFragment();
+                return;
+            }
             showContent(mProgressBar, mRlContentView);
             setResourceData(result);
-        });
-    }
+        }
+    };
 
     /**
      * Set resource details in view from @{@link Result}
      */
+    @UiThread
     private void setResourceData(@NonNull Result result) {
         this.mTvResourceName.setText(result.getName());
         this.mTvResourceEyeColor.setText(result.getEyeColor());

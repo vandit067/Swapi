@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.demo.swapi.R;
 import com.demo.swapi.interfaces.IMasterFragmentInteractionListener;
+import com.demo.swapi.model.ApiResponseDataWrapper;
+import com.demo.swapi.model.ResourceDetailModel;
 import com.demo.swapi.model.Result;
 import com.demo.swapi.view.adapter.ResourcesAdapter;
 import com.demo.swapi.viewmodel.MasterViewModel;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,6 +68,9 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         super.onCreate(savedInstanceState);
         // We are not creating instance of ViewModel class here.
         this.mMasterViewModel = ViewModelProviders.of(this).get(MasterViewModel.class);
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        this.mMasterViewModel.getResourceDetailModelObserver().observe(this, mApiResponseDataWrapperObserver);
+
     }
 
     @Nullable
@@ -75,6 +81,9 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         return view;
     }
 
+    /**
+     * Initialize Ui Component
+     */
     private void initUI(){
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
         this.mRvResources.setLayoutManager(linearLayoutManager);
@@ -117,17 +126,17 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
 
     @Override
     public void onResourceSelected(int position, @NonNull Result result) {
-        addFragment(Detailfragment.newInstance(result), getClass().getSimpleName());
+        addFragment(DetailFragment.newInstance(result), getClass().getSimpleName());
     }
 
     /**
-     * Check network connection and pass search resource name to  {@link Detailfragment}
+     * Check network connection and pass search resource name to  {@link DetailFragment}
      * @param resourceName name of resource
      */
     private void performSearch(@NonNull String resourceName){
         hideKeyboard();
         if(!isNetworkConnected()){
-            showError(R.string.message_network_check);
+            showError(R.string.error_network_check);
             return;
         }
         this.mResourcesAdapter.clearList();
@@ -140,16 +149,37 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
     private void retrieveAndSetResourcesList(@NonNull String mResourceName){
         showProgress(this.mProgressBar, this.mCvContentView);
         this.mMasterViewModel.retrieveResourceDetails(mResourceName);
-        this.mMasterViewModel.getResourceDetailModelObserver().observe(this, resourceDetailModel -> {
-            showContent(this.mProgressBar, this.mCvContentView);
-            if(resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()){
-                showMessage(R.string.message_no_data_available);
-                return;
-            }
-            this.mResourcesAdapter.swapAdapter(resourceDetailModel.getResults());
-        });
     }
 
+    /**
+     * {@link ApiResponseDataWrapper} observer which will observe event through {@link androidx.lifecycle.LiveData} and update UI accordingly.
+     */
+    private final Observer<ApiResponseDataWrapper> mApiResponseDataWrapperObserver = new Observer<ApiResponseDataWrapper>() {
+        @Override
+        public void onChanged(@Nullable ApiResponseDataWrapper apiResponseDataWrapper) {
+            //Handle UI
+            showContent(mProgressBar, mCvContentView);
+            if(apiResponseDataWrapper == null){
+                showError(R.string.message_no_data_available);
+                return;
+            }
+            if(apiResponseDataWrapper.getThrowable() != null){
+                showError(displayError(apiResponseDataWrapper.getThrowable()));
+                return;
+            }
+            ResourceDetailModel resourceDetailModel = (ResourceDetailModel) apiResponseDataWrapper.getResponse();
+            if (resourceDetailModel == null || resourceDetailModel.getResults() == null || resourceDetailModel.getResults().isEmpty()) {
+                showError(R.string.message_no_data_available);
+                return;
+            }
+            mResourcesAdapter.swapAdapter(resourceDetailModel.getResults());
+        }
+    };
+
+    /**
+     * Initialize your UI components here.
+     * @param view current view
+     */
     @Override
     protected void setUp(@NonNull View view) {
         this.initUI();
