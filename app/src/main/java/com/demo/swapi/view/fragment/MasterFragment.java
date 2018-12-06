@@ -112,9 +112,11 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
      * Initialize Ui Component
      */
     private void initUI() {
+        this.mTietResource.requestFocus();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getBaseActivity());
         this.mRvResources.setLayoutManager(linearLayoutManager);
         setRecyclerViewItemAnimation(this.mRvResources, R.anim.layout_animation_from_bottom);
+        addItemDividerDecorationToRecyclerView(this.mRvResources, linearLayoutManager.getOrientation());
         this.mResourcesAdapter = new ResourcesAdapter(new ArrayList<>(), this);
         this.mRvResources.setAdapter(this.mResourcesAdapter);
         this.mEndlessRecyclerViewScrollListener = getRecyclerViewScrollListener(linearLayoutManager);

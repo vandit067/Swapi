@@ -25,6 +25,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:hint="@string/label_search_resource"
                 app:errorEnabled="true"
                 app:hintTextAppearance="@style/HintText">
@@ -34,6 +36,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
                     android:imeOptions="actionSearch"
                     android:inputType="text"
                     android:maxLines="1"
