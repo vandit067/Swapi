@@ -3,7 +3,6 @@ package com.demo.swapi.view.fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,6 +121,9 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         this.mRvResources.addOnScrollListener(this.mEndlessRecyclerViewScrollListener);
     }
 
+    /**
+     * Perform click event of Search button.
+     */
     @OnClick(R.id.fragment_master_iv_search)
     void performResourceSearch() {
         if (TextUtils.isEmpty(this.mTietResource.getText())) {
@@ -131,6 +133,10 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         this.performSearch("" + this.mTietResource.getText());
     }
 
+    /**
+     * Called when text change happen in mTilResource {@link TextInputEditText}
+     * @param editable instance of {@link Editable} to perform operation.
+     */
     @OnTextChanged(value = R.id.fragment_master_tiet_resource, callback = OnTextChanged.Callback.TEXT_CHANGED)
     void onTextChanged(Editable editable) {
         if (editable.length() > 0) {
@@ -141,6 +147,12 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         }
     }
 
+    /**
+     * Action to perform for {@link TextInputEditText}
+     * @param v view
+     * @param actionId action id to perform action.
+     * @return true to perform action else false
+     */
     @OnEditorAction(R.id.fragment_master_tiet_resource)
     boolean onEditorAction(TextView v, int actionId) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -154,6 +166,11 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         return false;
     }
 
+    /**
+     * Call when recycler view item click happen.
+     * @param position Selected item position.
+     * @param result Selected {@link Result} object at position.
+     */
     @Override
     public void onResourceSelected(int position, @NonNull Result result) {
         addFragment(DetailFragment.newInstance(result), getClass().getSimpleName());
@@ -183,11 +200,15 @@ public class MasterFragment extends BaseFragment implements IMasterFragmentInter
         this.mMasterViewModel.retrieveResourceDetails(mResourceName, 1);
     }
 
+    /**
+     * Scroll listner of {@link RecyclerView} to load more content on scroll
+     * @param layoutManager Layout manager for {@link RecyclerView} which will arrange data in adapter accordingly.
+     * @return @{@link EndlessRecyclerViewScrollListener} instance.
+     */
     private EndlessRecyclerViewScrollListener getRecyclerViewScrollListener(@NonNull LinearLayoutManager layoutManager) {
         return new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-                Log.v("LoadMore:", "Page: " + page + " - TotalItems : " + totalItemsCount);
                 if (totalItemsCount < mMasterViewModel.getTotalItemCount() && mResourcesAdapter.addLoadingView()) {
                     mMasterViewModel.retrieveResourceDetails("" + mTietResource.getText(), page);
                 }

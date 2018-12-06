@@ -19,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+/**
+ * Class which will be extend by all {@link android.app.Activity} of application which required to perform common operation specified here.
+ */
 public abstract class BaseActivity extends AppCompatActivity implements IBaseView {
 
     @Override
