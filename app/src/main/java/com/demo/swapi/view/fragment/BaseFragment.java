@@ -15,7 +15,9 @@ import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.Unbinder;
-
+/**
+ * Class which will be extend by all {@link Fragment} of application which required to perform common operation specified here.
+ */
 public abstract class BaseFragment extends Fragment implements IBaseView {
 
     private BaseActivity mActivity;
@@ -152,6 +154,16 @@ public abstract class BaseFragment extends Fragment implements IBaseView {
     @NonNull
     String displayError(@NonNull Throwable e){
         return NetworkUtils.getApiErrorMessage(getBaseActivity().getApplicationContext(), e);
+    }
+
+    /**
+     * Add decoration of divider for {@link RecyclerView}
+     * @param recyclerView instance of {@link RecyclerView}
+     * @param orientation {@link androidx.recyclerview.widget.RecyclerView.LayoutManager} orientation
+     */
+    @UiThread
+    void addItemDividerDecorationToRecyclerView(@NonNull RecyclerView recyclerView, int orientation) {
+        UiUtils.addItemDividerDecorationToRecyclerView(recyclerView, orientation);
     }
 
     @Override

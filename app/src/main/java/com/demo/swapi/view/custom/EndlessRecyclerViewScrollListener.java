@@ -17,7 +17,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
      * for better UX
      */
     private static int sVisibleThreshold = 2;
-    private int mCurrentPage = 2;
+    private int mCurrentPage = 1;
     private int mPreviousTotalItemCount = 0;
     private boolean mLoading = true;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -100,7 +100,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
 
     // Call this method whenever performing new searches
     public void resetState() {
-        this.mCurrentPage = 2;
+        this.mCurrentPage = 1;
         this.mPreviousTotalItemCount = 0;
         this.mLoading = true;
     }

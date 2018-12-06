@@ -15,6 +15,9 @@ import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * Class which will be extend by all {@link android.app.Activity} of application which required to perform common operation specified here.
+ */
 public abstract class BaseActivity extends AppCompatActivity implements IBaseView {
 
     @Override
