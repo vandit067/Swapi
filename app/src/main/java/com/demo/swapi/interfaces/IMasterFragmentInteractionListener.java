@@ -1,5 +1,7 @@
 package com.demo.swapi.interfaces;
 
+import android.view.View;
+
 import com.demo.swapi.model.Result;
 
 import androidx.annotation.NonNull;
