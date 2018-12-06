@@ -1,16 +1,19 @@
 # Swapi
-A sample Android app to play with http://swapi.co/ API.Search resources with "/people" endpoint.
+* A sample Android app to play with http://swapi.co/ API.
+* Search resources with "/people" endpoint.
+* Application made with android architecture component, third party libraries and with MVVM design pattern.
+
 # Features
 
 Some of the features of the app include
 
-Effective Networking - Using a combination of Retrofit, RxJava and LiveData, we are able to handle networking in the most effective way.
+* Effective Networking - Using a combination of Retrofit, RxJava and LiveData, we are able to handle networking in the most effective way.
 
-MVVM architecture - Using the lifecycle aware viewmodels, the view observes changes in the model.
+* MVVM architecture - Using the lifecycle aware viewmodels, the view observes changes in the model.
 
-Android Architecture Components - Lifecycle awareness has been achieved using a combination of LiveData, ViewModels. Integrate Navigation component for smooth navigation between screens(https://github.com/vandit067/Swapi/tree/Navigation_Architecture_Component_Integration)
+* Android Architecture Components - Lifecycle awareness has been achieved using a combination of LiveData, ViewModels. Integrate Navigation component for smooth navigation between screens(https://github.com/vandit067/Swapi/tree/Navigation_Architecture_Component_Integration)
 
-View Bindings - Bind views using butterknife.
+* View Bindings - Bind views using butterknife.
 
 # Demo
 <img src="demo/Search_Master_Screen.png" hspace="5" width="200"/><img src="demo/Master_Screen.png" hspace="5" width="200"/><img src="demo/Detail_Screen.png" hspace="5" width="200"/><img src="demo/Swapi_Demo.gif" hspace="5" width="200"/>
