@@ -16,7 +16,7 @@ buildscript {
         applicationId = 'com.demo.swapi'
         // Sdk and tools
         compileSdkVersion = 28
-        minSdkVersion = 19
+        minSdkVersion = 21
         targetSdkVersion = 28
 
         // App dependencies

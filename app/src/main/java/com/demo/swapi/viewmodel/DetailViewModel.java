@@ -1,40 +1,35 @@
 package com.demo.swapi.viewmodel;
 
 import android.app.Application;
-import android.util.Log;
 
-import com.demo.swapi.model.ResourceDetailModel;
+import com.demo.swapi.model.Result;
+import com.demo.swapi.view.fragment.DetailFragment;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 import androidx.lifecycle.MutableLiveData;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
+/**
+ * Class used for handle the business logic for {@link DetailFragment}
+ */
 public class DetailViewModel extends BaseViewModel {
 
-    private MutableLiveData<ResourceDetailModel> mResourceDetailModelObserver = new MutableLiveData<>();
+    private MutableLiveData<Result> mResult;
 
     public DetailViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public MutableLiveData<ResourceDetailModel> getResourceDetailModelObserver() {
-        return this.mResourceDetailModelObserver;
+    @UiThread
+    public MutableLiveData<Result> getResult() {
+        if(this.mResult == null){
+            this.mResult = new MutableLiveData<>();
+        }
+        return this.mResult;
     }
 
-    public void retrieveResourceDetails(@NonNull String resourceName){
-        /*addDisposable(NetworkUtils.isNetworkAvailableObservable(getAppContext())
-                .subscribeOn(getAppRxSchedulers().io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(isNetworkAvailable -> {
-
-                }, e -> {
-
-        }));*/
-        addDisposable(getApiServices().getApiInterface().getResourceDetail(resourceName)
-                .subscribeOn(getAppRxSchedulers().io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(resourceDetailModel -> mResourceDetailModelObserver.postValue(resourceDetailModel), e -> {
-                    Log.e("Error", e.getMessage());
-                }));
+    @UiThread
+    public void setResult(@NonNull Result mResult) {
+        this.mResult.setValue(mResult);
     }
-
 }
